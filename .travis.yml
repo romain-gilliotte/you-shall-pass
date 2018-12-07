@@ -6,4 +6,4 @@ install:
 script:
  - npm test
 # Send coverage data to Coveralls
-after_script: "npm run coverage"
+after_script: "npm run upload-coverage"

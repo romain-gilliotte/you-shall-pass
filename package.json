@@ -10,9 +10,10 @@
   ],
   "scripts": {
     "build": "tsc",
-    "test": "nyc mocha --require ts-node/register --require source-map-support/register test/**/*.ts",
-    "upload_coverage": "nyc report --reporter=text-lcov | coveralls",
-    "prepublish": "npm run build && npm run test"
+    "test": "mocha",
+    "coverage": "nyc mocha",
+    "upload-coverage": "nyc report --reporter=text-lcov | coveralls",
+    "prepublish": "npm run test && npm run build"
   },
   "repository": {
     "type": "git",
