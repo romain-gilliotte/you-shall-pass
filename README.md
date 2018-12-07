@@ -7,3 +7,4 @@
 
 You Shall Pass is a ACL module for Javascript applications
 
+It allows to check if a user has permissions.
