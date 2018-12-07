@@ -1,12 +1,12 @@
-'use strict';
 
-var assert = require('chai').assert;
-var module = require('../dist/index.js');
+import {assert} from "chai";
+import Acl from "../lib/index";
 
-const acl = new module.default([
+const acl = new Acl([
     {
-        from: [module.default.Public],
+        from: [Acl.Public],
         to: ['has_secret_key'],
+        explain: "coucou",
         check: async (params) => params.key == 'super_secret'
     }
 ])

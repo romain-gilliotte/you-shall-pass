@@ -10,8 +10,8 @@
   ],
   "scripts": {
     "build": "tsc",
-    "test": "mocha --reporter spec",
-    "cover": "istanbul cover node_modules/mocha/bin/_mocha test/*.js -- -R spec",
+    "test": "nyc mocha --require ts-node/register --require source-map-support/register test/**/*.ts",
+    "upload_coverage": "nyc report --reporter=text-lcov | coveralls",
     "prepublish": "npm run build && npm run test"
   },
   "repository": {
@@ -30,10 +30,15 @@
   },
   "homepage": "https://github.com/romain-gilliotte/you-shall-not-pass#readme",
   "devDependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.5",
     "chai": "^4.2.0",
     "coveralls": "^3.0.2",
     "istanbul": "^0.4.5",
     "mocha": "^5.2.0",
+    "nyc": "^13.1.0",
+    "source-map-support": "^0.5.9",
+    "ts-node": "^7.0.1",
     "typescript": "^3.2.2"
   },
   "dependencies": {}

@@ -1,0 +1,14 @@
+{
+    "include": [
+      "lib/**/*.ts"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "exclude": [
+      "**/*.d.ts"
+    ],
+    "all": true,
+    "sourceMap": true,
+    "instrument": true
+}
