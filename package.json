@@ -4,10 +4,15 @@
   "description": "You shall pass is an ACL module for Javascript",
   "main": "dist/index.js",
   "types": "dist/index.d.js",
+  "files": [
+    "dist/index.js",
+    "dist/index.d.js"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "mocha --reporter spec",
-    "cover": "istanbul cover node_modules/mocha/bin/_mocha test/*.js -- -R spec"
+    "cover": "istanbul cover node_modules/mocha/bin/_mocha test/*.js -- -R spec",
+    "prepublish": "npm run build && npm run test"
   },
   "repository": {
     "type": "git",
