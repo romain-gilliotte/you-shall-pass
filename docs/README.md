@@ -3,6 +3,7 @@
 </p>
 
 [![Build Status](https://travis-ci.org/romain-gilliotte/you-shall-pass.svg?branch=master)](https://travis-ci.org/romain-gilliotte/you-shall-pass)
+[![Coverage Status](https://coveralls.io/repos/github/romain-gilliotte/you-shall-pass/badge.svg?branch=master)](https://coveralls.io/github/romain-gilliotte/you-shall-pass?branch=master)
 
 You Shall Pass is a ACL module for Javascript applications
 
