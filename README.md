@@ -4,6 +4,9 @@
 
 [![Build Status](https://travis-ci.org/romain-gilliotte/you-shall-pass.svg?branch=master)](https://travis-ci.org/romain-gilliotte/you-shall-pass)
 [![Coverage Status](https://coveralls.io/repos/github/romain-gilliotte/you-shall-pass/badge.svg?branch=master)](https://coveralls.io/github/romain-gilliotte/you-shall-pass?branch=master)
+[![npm](https://img.shields.io/npm/dt/you-shall-pass.svg)](https://www.npmjs.com/package/you-shall-pass)
+[![NpmLicense](https://img.shields.io/npm/l/you-shall-pass.svg)](https://www.npmjs.com/package/you-shall-pass)
+
 
 You Shall Pass is a ACL module for Javascript applications
 
