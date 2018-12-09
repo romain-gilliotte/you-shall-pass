@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="225" height="177" src="https://raw.githubusercontent.com/romain-gilliotte/you-shall-pass/master/assets/logo.jpg">
+  <img width="898" height="196" src="https://raw.githubusercontent.com/romain-gilliotte/you-shall-pass/master/assets/logo.png">
 </p>
 
 [![Build Status](https://travis-ci.org/romain-gilliotte/you-shall-pass.svg?branch=master)](https://travis-ci.org/romain-gilliotte/you-shall-pass)
