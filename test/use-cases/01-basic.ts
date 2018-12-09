@@ -9,16 +9,17 @@ import { Acl } from "../../lib/index";
  * 
  * @param id Which user should be retrieved.
  */
-export async function getUserAsync(id: number) {
-    return new Promise((resolve, reject) => {
-        setTimeout(() => {
-            switch (id) {
-                case 1: resolve({ id: 1, isAdmin: true });
-                case 2: resolve({ id: 2, isAdmin: false });
-                default: reject("User not found");
-            }
-        }, 100);
-    });
+async function getUser(id: number) {
+    switch (id) {
+        case 1:
+            return { id: 1, isAdmin: true };
+
+        case 2:
+            return { id: 2, isAdmin: false };
+
+        default:
+            throw "User not found";
+    }
 }
 
 enum Roles {
@@ -40,7 +41,7 @@ const acl = new Acl([
         explain: "User is an administrator",
         check: async (params) => {
             try {
-                params.user = await getUserAsync(params.userId);
+                params.user = await getUser(params.userId);
                 return params.user.isAdmin;
             }
             catch (e) {
@@ -84,7 +85,7 @@ describe('Acl checks', () => {
             assert.isNotNull(await acl.check(Roles.Public, Roles.HasSecretKey, { key: 'super_secret' }));
         });
 
-        it('should allow access to the Admin role if the key and userid is provided', async () => {
+        it('should allow access to the Admin role if the key and userId are provided', async () => {
             assert.isNotNull(await acl.check(Roles.Public, Roles.IsAdmin, { key: 'super_secret', userId: 1 }));
         });
     });
