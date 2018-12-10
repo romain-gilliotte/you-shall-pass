@@ -106,46 +106,47 @@ export default class Acl {
      * @param from Permission to start from. Leave empty to start from the default "public" permission.
      */
     async check(from: string, to: string, parameters: any, restrictions: RestrictionHash = {}): Promise<any> {
+        // Succeed when we reach the target
         if (from === to)
-            return {}; // empty object == success
+            return parameters;
 
-        const edges: Edge[] = this._edges.get(from) || [];
+        // Explore all paths that go towards the target.        
+        const edges: Edge[] = (this._edges.get(from) || []).filter(edge => this._canReach(edge.to, to));
+        const checks = edges.map(edge => this._checkChildren(edge, to, parameters, restrictions));
+        const results = await Promise.all(checks);
+
+        // Merge positive results if it worked, fail otherwise.
+        const positiveResults = results.filter(r => !!r);
+        if (positiveResults.length)
+            return positiveResults.reduce(Object.assign, {});
+        else
+            return null;
+    }
+
+    async _checkChildren(edge: Edge, to: string, parameters: any, restrictions: RestrictionHash) {
+        // Push a new context so that only children can see what got pushed by this edge.
+        // This is needed to make sure that the order we traverse the graph does not matter.
+        const scopedParams = Object.create(parameters);
+
+        // If we fail going to the next step, skip this path.
+        const checkPassed = await edge.check(scopedParams);
+        if (!checkPassed)
+            return null;
+
+        // If we fail during recursion, also skip path.
+        const childrenParams = await this.check(edge.to, to, scopedParams, restrictions);
+        if (!childrenParams)
+            return null;
+
+        if (restrictions)
+            edge.fillRestrictions(restrictions, scopedParams)
+
+        // Fill merged params from children and own parameters (so that we can 
+        // inject token, user, etc, on res.locals later on)
         const mergedParams: any = {};
-        let userIsAllowed: boolean = false;
-
-        for (let edge of edges) {
-            // Don't bother exploring routes that do not go to the destination.
-            if (!this._canReach(edge.to, to))
-                continue;
-
-            // Push a new context so that only children can see what got pushed by this edge.
-            // This is needed to make sure that the order we traverse the graph does not matter.
-            const scopedParams = Object.create(parameters);
-
-            // If we fail going to the next step, skip this path.
-            const checkPassed = await edge.check(scopedParams);
-            if (!checkPassed)
-                continue;
-
-            // If we fail during recursion, also skip path.
-            const childrenParams = await this.check(edge.to, to, scopedParams, restrictions);
-            if (!childrenParams)
-                continue;
-
-            // Fill merged params from children and own parameters (so that we can 
-            // inject token, user, etc, on res.locals later on)
-            Object.assign(mergedParams, childrenParams);
-            Object.assign(mergedParams, scopedParams);
-
-            // We need to remember that the user passed the test, because checking if
-            // properties are defined in merged params is not enought.
-            userIsAllowed = true;
-
-            if (restrictions)
-                edge.fillRestrictions(restrictions, scopedParams)
-        }
-
-        return userIsAllowed ? mergedParams : null;
+        Object.assign(mergedParams, childrenParams);
+        Object.assign(mergedParams, scopedParams);
+        return mergedParams;
     }
 
     /**
