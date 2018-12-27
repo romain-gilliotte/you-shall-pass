@@ -1,15 +1,14 @@
 {
   "name": "you-shall-pass",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "You shall pass is an ACL module for Javascript",
-  "main": "dist/index.js",
-  "types": "dist/index.d.js",
+  "main": "dist/lib/index.js",
+  "types": "dist/lib/index.d.ts",
   "files": [
-    "dist/index.js",
-    "dist/index.d.js"
+    "dist/lib/**/*"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf dist && tsc",
     "test": "mocha",
     "coverage": "nyc mocha",
     "upload-coverage": "nyc report --reporter=text-lcov | coveralls",
@@ -17,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/romain-gilliotte/you-shall-not-pass.git"
+    "url": "git+https://github.com/romain-gilliotte/you-shall-pass.git"
   },
   "keywords": [
     "acl",
@@ -27,9 +26,9 @@
   "author": "Romain Gilliotte",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/romain-gilliotte/you-shall-not-pass/issues"
+    "url": "https://github.com/romain-gilliotte/you-shall-pass/issues"
   },
-  "homepage": "https://github.com/romain-gilliotte/you-shall-not-pass#readme",
+  "homepage": "https://github.com/romain-gilliotte/you-shall-pass#readme",
   "devDependencies": {
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.5",
