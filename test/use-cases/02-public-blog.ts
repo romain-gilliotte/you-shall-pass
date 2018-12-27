@@ -101,7 +101,7 @@ const acl = new Acl([
                 // No need to check the password, the token was signed.
                 return true;
             }
-            catch(e) {
+            catch (e) {
                 return false;
             }
         }

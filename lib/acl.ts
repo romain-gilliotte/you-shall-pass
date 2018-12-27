@@ -14,9 +14,9 @@ type Restriction = any;
 type RestrictionHash = {[key: string]: Restriction};
 
 /** Type of public function results */
-type CheckResult = Params;
+export type CheckResult = Params;
 
-type ExplainResult = {
+export type ExplainResult = {
     to: string,
     explain: string,
     check: 'passed'|'failed',
@@ -24,7 +24,7 @@ type ExplainResult = {
 };
 
 /** Type of a single definition when configuring acls. */
-type Definition = {
+export type Definition = {
     explain: string,
     from: string[],
     to: string[],
