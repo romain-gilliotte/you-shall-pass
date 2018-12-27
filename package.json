@@ -1,6 +1,6 @@
 {
   "name": "you-shall-pass",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "You shall pass is an ACL module for Javascript",
   "main": "dist/index.js",
   "types": "dist/index.d.js",
