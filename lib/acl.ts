@@ -155,8 +155,7 @@ export default class Acl {
         if (!childrenParams)
             return null;
 
-        if (restrictions)
-            edge.fillRestrictions(restrictions, scopedParams)
+        edge.fillRestrictions(restrictions, scopedParams);
 
         // Merge children params with our own, (so that we can return token, user, etc, to the caller).
         return Object.assign({}, scopedParams, childrenParams);
