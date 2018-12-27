@@ -26,8 +26,8 @@ export type ExplainResult = {
 /** Type of a single definition when configuring acls. */
 export type Definition = {
     explain: string,
-    from: string[],
-    to: string[],
+    from: string[] | string,
+    to: string[] | string,
     check?: CheckFn,
     restrict?: RestrictFns
 };
@@ -84,12 +84,24 @@ export default class Acl {
      */
     protected _edges: Map<string, Edge[]>;
 
-    constructor(definitions: Definition[]) {
+    /**
+     * Contains the default role
+     */
+    protected _defaultRole: string;
+
+    constructor(defaultRole: string, definitions: Definition[]) {
+        this._defaultRole = defaultRole;
         this._edges = new Map();
 
         for (let def of definitions) {
-            def.from.forEach(from => {
-                def.to.forEach(to => {
+            if (!Array.isArray(def.from))
+                def.from = [def.from];
+
+            if (!Array.isArray(def.to))
+                def.to = [def.to];
+
+            for (let from of def.from) {
+                for (let to of def.to) {
                     const edge = new Edge(from, to, def.explain, def.check, def.restrict);
                     const edgeArr = this._edges.get(from);
 
@@ -97,20 +109,23 @@ export default class Acl {
                         edgeArr.push(edge);
                     else
                         this._edges.set(from, [edge]);
-                });
-            });
-        };
+                }
+            }
+        }
     }
 
     /**
      * Check that the current user is allowed to perform an action.
      *
-     * @param from Permission to start from.
-     * @param to Permission that is being checked.
+     * @param permission Permission that is being checked.
      * @param params Parameters provided to the ACL check (entityId, body, ...).
      * @param restrictions If provided, allows to load restrictions while traversing the permission graph.
      */
-    async check(from: string, to: string, params: Params, restrictions: RestrictionHash = {}): Promise<CheckResult|null> {
+    async check(permission: string, params: Params, restrictions: RestrictionHash = {}): Promise<CheckResult | null> {
+        return this._check(this._defaultRole, permission, params, restrictions);
+    }
+
+    protected async _check(from: string, to: string, params: Params, restrictions: RestrictionHash = {}): Promise<CheckResult|null> {
         // Succeed when we reach the target
         if (from === to)
             return params;
@@ -139,7 +154,7 @@ export default class Acl {
             return null;
 
         // If we fail during recursion, also skip path.
-        const childrenParams = await this.check(edge.to, to, scopedParams, restrictions);
+        const childrenParams = await this._check(edge.to, to, scopedParams, restrictions);
         if (!childrenParams)
             return null;
 
@@ -153,11 +168,14 @@ export default class Acl {
     /**
      * Show the steps followed when traversing the permission graph.
      *
-     * @param from Permission to start from.
-     * @param to Permission that is being checked.
+     * @param permission Permission that is being checked.
      * @param params Parameters provided to the ACL check (entityId, body, ...).
      */
-    async explain(from: string, to: string, params: Params): Promise<ExplainResult[]> {
+    async explain(permission: string, params: Params): Promise<ExplainResult[]> {
+        return this._explain(this._defaultRole, permission, params);
+    }
+
+    protected async _explain(from: string, to: string, params: Params): Promise<ExplainResult[]> {
         const result: ExplainResult[] = [];
         const edges: Edge[] = this._edges.get(from) || [];
 
@@ -176,7 +194,7 @@ export default class Acl {
             });
 
             if (edge.to !== to && checkPassed) {
-                let children = await this.explain(edge.to, to, scopedParams);
+                let children = await this._explain(edge.to, to, scopedParams);
                 result.push(...children);
             }
         }

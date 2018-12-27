@@ -62,10 +62,10 @@ enum Roles {
     canEditComment = 'can_edit_comment'
 }
 
-const acl = new Acl([
+const acl = new Acl(Roles.Public, [
     {
-        from: [Roles.Public],
-        to: [Roles.Authenticated],
+        from: Roles.Public,
+        to: Roles.Authenticated,
         explain: "User carries a basic authentication token",
         check: async params => {
             try {
@@ -86,8 +86,8 @@ const acl = new Acl([
         }
     },
     {
-        from: [Roles.Public],
-        to: [Roles.Authenticated],
+        from: Roles.Public,
+        to: Roles.Authenticated,
         explain: "User carries a JWT token",
         check: async params => {
             try {
@@ -107,41 +107,41 @@ const acl = new Acl([
         }
     },
     {
-        from: [Roles.Authenticated],
-        to: [Roles.Author],
+        from: Roles.Authenticated,
+        to: Roles.Author,
         explain: "User is an author on this blog",
         check: async params => params.user.isAuthor
     },
     {
-        from: [Roles.Authenticated],
-        to: [Roles.Moderator],
+        from: Roles.Authenticated,
+        to: Roles.Moderator,
         explain: "User is a moderator",
         check: async params => params.user.isModerator
     },
     {
-        from: [Roles.Author],
-        to: [Roles.canPostArticle],
+        from: Roles.Author,
+        to: Roles.canPostArticle,
         explain: 'Authors can post articles'
     },
     {
-        from: [Roles.Moderator],
+        from: Roles.Moderator,
         to: [Roles.canEditArticle, Roles.canEditComment],
         explain: 'Moderators can edit all articles and comments'
     },
     {
-        from: [Roles.Author],
-        to: [Roles.canEditArticle],
+        from: Roles.Author,
+        to: Roles.canEditArticle,
         explain: "Authors can edit their own articles",
         check: async params => params.article.createdBy == params.user.email
     },
     {
-        from: [Roles.Authenticated],
-        to: [Roles.canPostComment],
+        from: Roles.Authenticated,
+        to: Roles.canPostComment,
         explain: "Authenticated users can post new comments"
     },
     {
-        from: [Roles.Authenticated],
-        to: [Roles.canEditComment],
+        from: Roles.Authenticated,
+        to: Roles.canEditComment,
         explain: "Authenticated users can edit their own comment",
         check: async params => params.comment.createdBy == params.user.email
     }
@@ -155,7 +155,7 @@ describe('Acl on a blog', () => {
         it('Everyone can authenticate using either tokens', async () => {
             for (let email in TOKENS) {
                 for (let tokenType in TOKENS[email]) {
-                    const result = await acl.check(Roles.Public, Roles.Authenticated, {
+                    const result = await acl.check(Roles.Authenticated, {
                         token: TOKENS[email][tokenType]
                     });
 
@@ -170,7 +170,7 @@ describe('Acl on a blog', () => {
     describe('should work for posting articles', () => {
 
         it('Elliot can post articles', async () => {
-            const result = await acl.check(Roles.Public, Roles.canPostArticle, {
+            const result = await acl.check(Roles.canPostArticle, {
                 token: TOKENS["elliot@e-corp.com"].basic
             });
 
@@ -179,7 +179,7 @@ describe('Acl on a blog', () => {
         });
 
         it('Angela cannot post articles', async () => {
-            const result = await acl.check(Roles.Public, Roles.canPostArticle, {
+            const result = await acl.check(Roles.canPostArticle, {
                 token: TOKENS["angela@e-corp.com"].basic
             });
 
@@ -187,7 +187,7 @@ describe('Acl on a blog', () => {
         });
 
         it('Elliot can edit his own articles.', async () => {
-            const result = await acl.check(Roles.Public, Roles.canEditArticle, {
+            const result = await acl.check(Roles.canEditArticle, {
                 token: TOKENS["elliot@e-corp.com"].basic,
                 article: {
                     createdBy: 'elliot@e-corp.com'
@@ -199,7 +199,7 @@ describe('Acl on a blog', () => {
         });
 
         it('Elliot can edit phillip\'s articles', async () => {
-            const result = await acl.check(Roles.Public, Roles.canEditArticle, {
+            const result = await acl.check(Roles.canEditArticle, {
                 token: TOKENS["elliot@e-corp.com"].basic,
                 article: {
                     createdBy: 'phillip@e-corp.com'
@@ -211,7 +211,7 @@ describe('Acl on a blog', () => {
         })
 
         it('Phillip can edit his own articles.', async () => {
-            const result = await acl.check(Roles.Public, Roles.canEditArticle, {
+            const result = await acl.check(Roles.canEditArticle, {
                 token: TOKENS["phillip@e-corp.com"].basic,
                 article: {
                     createdBy: 'phillip@e-corp.com'
@@ -223,7 +223,7 @@ describe('Acl on a blog', () => {
         });
 
         it('Phillip cannot edit Elliot\'s articles', async () => {
-            const result = await acl.check(Roles.Public, Roles.canEditArticle, {
+            const result = await acl.check(Roles.canEditArticle, {
                 token: TOKENS["phillip@e-corp.com"].basic,
                 article: {
                     createdBy: 'elliot@e-corp.com'
@@ -234,7 +234,7 @@ describe('Acl on a blog', () => {
         });
 
         it('Angela cannot edit her own articles', async () => {
-            const result = await acl.check(Roles.Public, Roles.canEditArticle, {
+            const result = await acl.check(Roles.canEditArticle, {
                 token: TOKENS["angela@e-corp.com"].basic,
                 article: {
                     createdBy: 'angela@e-corp.com'
@@ -245,7 +245,7 @@ describe('Acl on a blog', () => {
         });
 
         it('Angela cannot edit other people articles', async () => {
-            const result = await acl.check(Roles.Public, Roles.canEditArticle, {
+            const result = await acl.check(Roles.canEditArticle, {
                 token: TOKENS["angela@e-corp.com"].basic,
                 article: {
                     createdBy: 'anyone@e-corp.com'
@@ -260,7 +260,7 @@ describe('Acl on a blog', () => {
     describe('should work for posting comments', () => {
 
         it('Angela can post comments', async () => {
-            const result = await acl.check(Roles.Public, Roles.canPostComment, {
+            const result = await acl.check(Roles.canPostComment, {
                 token: TOKENS["angela@e-corp.com"].basic
             });
 
@@ -269,7 +269,7 @@ describe('Acl on a blog', () => {
         });
 
         it('Angela cannot edit Elliot\'s comments', async () => {
-            const result = await acl.check(Roles.Public, Roles.canEditComment, {
+            const result = await acl.check(Roles.canEditComment, {
                 token: TOKENS["angela@e-corp.com"].basic,
                 comment: {
                     createdBy: "elliot@e-corp.com"
@@ -280,7 +280,7 @@ describe('Acl on a blog', () => {
         });
 
         it('Elliot can edit Angela\'s comments', async () => {
-            const result = await acl.check(Roles.Public, Roles.canEditComment, {
+            const result = await acl.check(Roles.canEditComment, {
                 token: TOKENS["elliot@e-corp.com"].basic,
                 comment: {
                     createdBy: "angela@e-corp.com"
