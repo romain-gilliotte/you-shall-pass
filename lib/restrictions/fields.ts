@@ -3,6 +3,10 @@ export default class FieldsRestriction {
 
     protected _fields: Set<string>;
 
+    get fields() {
+        return this._fields;
+    }
+
     constructor() {
         this._fields = new Set();
     }
