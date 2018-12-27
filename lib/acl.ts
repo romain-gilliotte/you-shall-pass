@@ -137,10 +137,7 @@ export default class Acl {
 
         // Merge positive results if it worked, fail otherwise.
         const positiveResults = results.filter(r => !!r);
-        if (positiveResults.length)
-            return positiveResults.reduce(Object.assign, {});
-        else
-            return null;
+        return positiveResults.length ? positiveResults.reduce((m, e) => Object.assign(m, e), {}) : null;
     }
 
     protected async _checkChildren(edge: Edge, to: string, params: Params, restrictions: RestrictionHash): Promise<CheckResult|null> {
