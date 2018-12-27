@@ -2,8 +2,8 @@ import { Acl } from "../../lib";
 import { assert } from "chai";
 
 /**
- * Example of the permission graph of E-Corp's tech blog.
- * 
+ * Example of the permission graph of E-Corp's public tech blog.
+ *
  * Phillip and Elliot are both authors at this blog, so they can write new posts, and edit their own posts.
  * Elliot is also a moderator, so he can also edit other's people posts and comments.
  * Angela is neither, but she can still post comments.
@@ -72,10 +72,10 @@ const acl = new Acl([
                 // Decode basic auth token.
                 const [_, token] = params.token.split(' ');
                 const [username, password] = Buffer.from(token, 'base64').toString().split(/:/);
-                
+
                 // Load user from database into parameters for other check functions
                 params.user = await getUser(username);
-                
+
                 // Check password, which is stored in plain text on the user.
                 // Don't do this in real-life!
                 return params.user.password === password;
@@ -110,19 +110,13 @@ const acl = new Acl([
         from: [Roles.Authenticated],
         to: [Roles.Author],
         explain: "User is an author on this blog",
-        check: async params => {
-            // use the user loaded earlier to check for admin status
-            return params.user.isAuthor
-        }
+        check: async params => params.user.isAuthor
     },
     {
         from: [Roles.Authenticated],
         to: [Roles.Moderator],
         explain: "User is a moderator",
-        check: async params => {
-            // use the user loaded earlier to check for admin status
-            return params.user.isModerator
-        }
+        check: async params => params.user.isModerator
     },
     {
         from: [Roles.Author],
@@ -138,9 +132,7 @@ const acl = new Acl([
         from: [Roles.Author],
         to: [Roles.canEditArticle],
         explain: "Authors can edit their own articles",
-        check: async params => {
-            return params.article.createdBy == params.user.email;
-        }
+        check: async params => params.article.createdBy == params.user.email
     },
     {
         from: [Roles.Authenticated],
@@ -151,9 +143,7 @@ const acl = new Acl([
         from: [Roles.Authenticated],
         to: [Roles.canEditComment],
         explain: "Authenticated users can edit their own comment",
-        check: async params => {
-            return params.comment.createdBy == params.user.email;
-        }
+        check: async params => params.comment.createdBy == params.user.email
     }
 ]);
 
@@ -170,6 +160,7 @@ describe('Acl on a blog', () => {
                     });
 
                     assert.isNotNull(result);
+                    assert.equal(result!.user.email, email);
                 }
             }
         });
@@ -182,9 +173,9 @@ describe('Acl on a blog', () => {
             const result = await acl.check(Roles.Public, Roles.canPostArticle, {
                 token: TOKENS["elliot@e-corp.com"].basic
             });
-            
+
             assert.isNotNull(result);
-            assert.equal(result.user.email, 'elliot@e-corp.com');
+            assert.equal(result!.user.email, 'elliot@e-corp.com');
         });
 
         it('Angela cannot post articles', async () => {
@@ -202,8 +193,9 @@ describe('Acl on a blog', () => {
                     createdBy: 'elliot@e-corp.com'
                 }
             });
-            
+
             assert.isNotNull(result);
+            assert.equal(result!.user.email, "elliot@e-corp.com");
         });
 
         it('Elliot can edit phillip\'s articles', async () => {
@@ -215,6 +207,7 @@ describe('Acl on a blog', () => {
             });
 
             assert.isNotNull(result);
+            assert.equal(result!.user.email, "elliot@e-corp.com");
         })
 
         it('Phillip can edit his own articles.', async () => {
@@ -226,6 +219,7 @@ describe('Acl on a blog', () => {
             });
 
             assert.isNotNull(result);
+            assert.equal(result!.user.email, "phillip@e-corp.com");
         });
 
         it('Phillip cannot edit Elliot\'s articles', async () => {
@@ -271,6 +265,7 @@ describe('Acl on a blog', () => {
             });
 
             assert.isNotNull(result);
+            assert.equal(result!.user.email, "angela@e-corp.com");
         });
 
         it('Angela cannot edit Elliot\'s comments', async () => {
@@ -293,6 +288,7 @@ describe('Acl on a blog', () => {
             });
 
             assert.isNotNull(result);
+            assert.equal(result!.user.email, "elliot@e-corp.com");
         });
 
     });

@@ -1,6 +1,6 @@
 
 export default class FieldsRestriction {
-    
+
     protected _fields: Set<string>;
 
     constructor() {
