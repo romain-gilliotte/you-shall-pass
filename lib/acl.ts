@@ -19,7 +19,7 @@ export type CheckResult = Params;
 export type ExplainResult = {
     to: string,
     explain: string,
-    check: 'passed'|'failed',
+    checkPassed: boolean,
     params: Params
 };
 
@@ -189,7 +189,7 @@ export default class Acl {
             result.push({
                 explain: edge.explain,
                 to: edge.to,
-                check: checkPassed ? 'passed' : 'failed',
+                checkPassed: checkPassed,
                 params: scopedParams
             });
 
