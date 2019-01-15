@@ -18,6 +18,7 @@ Like many others, it allows to check if a user has permissions to access resourc
 
 Unlike others:
 - It does not need a storage backend to store permissions: they will come from your own persistence layer.
+- Your permissions model will be easy to unit test.
 - It can give your detailed information on why you got allowed or not to perform actions and access resources.
 - It can be extended to load arbitrary restrictions associated with the permissions.
   - Permissions are not only either "yes" or "no". You can say "yes but only for ..." without creating many different roles.
@@ -74,24 +75,24 @@ const acl = new Acl(
             explain: "User carries a basic authentication token",
             from: 'is_anyone',
             to: 'is_authenticated',
-            check: async params => {
+            check: async ctx => {
                 // Decode basic auth token.
                 const [username, password] =
-                    Buffer.from(params.token.split(' '), 'base64').toString().split(/:/);
+                    Buffer.from(ctx.token.split(' '), 'base64').toString().split(/:/);
 
-                // Load user **into parameters**.
+                // Load user **into context**.
                 // It will be available for all other check functions.
-                params.user = await getUser(username);
+                ctx.user = await getUser(username);
 
                 // true if allowed, false otherwise
-                return params.user && bcrypt.verify(password, params.user.password);
+                return ctx.user && bcrypt.verify(password, ctx.user.password);
             }
         },
         {
             explain: "User is a moderator",
             from: 'is_authenticated',
             to: 'is_moderator',
-            check: async params => params.user.isModerator
+            check: async ctx => ctx.user.isModerator
         },
         {
             explain: 'Moderators can edit and delete all articles'
@@ -102,7 +103,7 @@ const acl = new Acl(
             explain: "Authors can edit their own articles",
             from: 'is_authenticated',
             to: 'can_edit_article',
-            check: async params => params.article.createdBy == params.user.email
+            check: async ctx => ctx.article.createdBy == ctx.user.email
         },
         [...]
     ]
