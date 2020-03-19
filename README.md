@@ -31,7 +31,7 @@ As this module is security related:
 - It is strictly typed with Typescript.
 - It is fully unit tested.
 
-# How does it work
+# How does it works
 
 With `you-shall-pass`, there are no roles and resources, all of your permissions are defined in a single "Permission Graph".
 
